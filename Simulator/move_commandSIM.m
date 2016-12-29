@@ -11,7 +11,6 @@ function [ botSim, Turn, Forward] = move_commandSIM( botSim, moves, start_angle,
 %	Turn		- List of bot turns
 %	Forward		- List of bot forward movements
 %	
-% 	by Max Martin
 
 % set initial values
 ii = 1;
@@ -28,18 +27,18 @@ end
 % start loop
 finish = length(moves);
 for i = 1:finish;
-    
+
     % break on last iteration
     if finish == ii + sum_moves - 1;
-        
+
         break
     end
-    
+
     %%% Rotation for first iteration %%%
     if i == 1;
         Turn(count1) = Turn(count1)+(pi/4)*moves(i)-(pi/4);
         count1 = count1+1;
-        
+
     %%% Rotation after first iteration %%%
     else
         % adjust iterations
@@ -81,18 +80,18 @@ for i = 1:finish;
                 diff = abs(moves(i)-moves(i-1));
                 if diff > 4;
                     diff = 8 - diff;
-                    
+
                     Turn(count1) = (pi/4)*diff;
                     count1 = count1 + 1;
                 else
-                    
+
                     Turn(count1) = (pi/4)*diff;
                     count1 = count1 + 1;
                 end
             end
         end
     end
-    
+
     %%% movement %%%
     % sum moves
     ii = i;
@@ -106,13 +105,13 @@ for i = 1:finish;
         i=i+1;
     end
     i = ii;
-    
+
     %diagonal add distance
     if n == 2 || n == 4 || n == 6 || n == 8;
         Forward(count2) = sum_moves*resolution*1.4141;
         count2 = count2 +1;
     else
-        
+
         Forward(count2) = sum_moves*resolution;
         count2 = count2 +1;
     end
@@ -122,6 +121,3 @@ Forward = Forward(Forward > 0);
 
 
 end
-
-
-

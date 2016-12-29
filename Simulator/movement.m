@@ -13,7 +13,6 @@ function [ botSim, particles, particle_data ] = movement( botSim, particles, wal
 %	particles       - Array of all the particles generated
 %	particles_data  - Array of particles position and heading
 %
-% by David Mathias
 
 num = size(particles,1);
 
@@ -31,4 +30,3 @@ for ii =1:num
 end
 
 end
-

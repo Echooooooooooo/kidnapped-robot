@@ -9,7 +9,6 @@ function [ mapGrid, limsMin, limsMax ] = inMap( map, mink, resolution, debug)
 %	mapGrid		- Array of discretised map
 %	limsMin 	- smallest corner of the map
 %	
-% 	by David Mathias
 
 mapOrig = map;
 
@@ -42,4 +41,3 @@ end
 mapGrid = flip(mapArray, 1); % fixes inverted y axis
 
 end
-

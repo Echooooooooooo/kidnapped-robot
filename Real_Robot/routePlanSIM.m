@@ -13,7 +13,6 @@ function [ botSim, moves] = routePlanSIM( botSim, mapGrid, limsMin, start, targe
 %	botSim 	- BotSim class
 %	moves 	- List of unit moves from start to target
 %	
-% 	by David Mathias
 
 
 numCells = sum(sum(mapGrid)); % Used in preallocation
@@ -44,7 +43,7 @@ delta = [-1, 0; %up
     0, 1;  %right
     -1, 1];%upright
 
-closed = zeros(mapSizeY, mapSizeX); % intialises the grid cells 
+closed = zeros(mapSizeY, mapSizeX); % intialises the grid cells
 closed(startY, startX) = 1;
 action = ones(mapSizeY, mapSizeX).*-1;
 
@@ -61,14 +60,14 @@ while found == false && resign == false
     else
         [~, d2] = sort(open(:,1)); 	% sorts open moves by cost
         open = open(d2, :);			% replaces them in the array in order
-        
+
         next = open(1,:);	% chooses the lowest cost moves
         open(1,:) = [];		% removes the chosen move
-        
+
         g = next(1);
         y = next(2);
         x = next(3);
-        
+
         if x == targetX && y == targetY
             found = true; 	% checks to see if the target has been found
         else
@@ -94,7 +93,7 @@ while found == false && resign == false
                         n = size(open, 1)+1;		% determines size of 'open'
                         open(n, :) = [g2, y2, x2];	% adds new open grid cell
                         closed(y2, x2) = 1;			% closes old grid cell
-                        action(y2, x2) = i;			% adds the direciton used 
+                        action(y2, x2) = i;			% adds the direciton used
                     end
                 end
             end
@@ -117,7 +116,7 @@ if resign == false
 
         path(n,1) = (x2-1) * resolution + limsMin(1);						% generates 'real world' path
         path(n,2) = (mapSizeY - mod(y2+mapSizeY, mapSizeY)) * resolution; 	% generates 'real world' path
-        
+
         x = x2;		% sets current x to be used to calculate next x
         y = y2;		% sets current y to be used to calculate next y
         n = n + 1; 	% steps counter
@@ -135,4 +134,3 @@ else
     moves = 0; 		% if no moves found set to 0
 end
 end
-

@@ -1,6 +1,5 @@
 function [botSim, botEst, particles, lost] = sim_localiseSIM(botSim, map, target, drawing, debug)
-% sim_localise
-% By Asher Winterson & Aidan Scannell
+% sim_localisex
 %
 %	===== Inputs =====
 %	botSim 	- BotSim class
@@ -66,7 +65,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
     %% Update and Score Particles
     n = n+1;
     botScan = botSim.ultraScan(); %botSim Scan
-    
+
     for ii = 1 : num
         particle_scan = particles(ii).ultraScan; %particle scan
         for jj = 1 : numberScans
@@ -79,9 +78,9 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         particles(ii).turn(turn) %Move particles to correct orientation
     end
     weights = weights/sum(weights); %normalize
-    
+
     %% Resampling - Resampling Wheel
-    
+
     %Initialize variables
     index = randi([1, num-1]);  %random number for initial starting point on wheel
     beta = 0;
@@ -89,18 +88,18 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
     for ii = 1 : num
         beta = beta + rand(1)*2*max_weight; %Add a random number between 0 and max twice the max weight
         while beta > weights(index) %Only resample certain particles
-            beta = beta - weights(index); %aidan input description here!
+            beta = beta - weights(index);
             index = rem((index+1),num)+1; %Calculate the remainder of index/num
             weights(ii) = weights(index);%Update weights
             particles(ii).setBotPos(particles(index).getBotPos()); %Update particle position
             particles(ii).setBotAng(particles(index).getBotAng());%Update particle angle
         end
     end
-    
+
     %% Movement
     % Move to the furthest wall in steps of distance/path_div
     % Localisation occurs between every step
-    
+
     if move_it < path_div && move_it ~= 1 % If not first iteration or less than path division
         turn = 0; % this is the step phase
         move = round((scan_max-2*wallClearance)/path_div); % move a fraction of the measured distance
@@ -127,7 +126,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         end
     end
     move_it = move_it + 1;
-    
+
     if min(botScan) < wallClearance %if within wall clearance begin evasive action
         disp('Close to wall - moving away')
         move_it = 1;
@@ -141,7 +140,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         end
         move = wallClearance*1.5;
     end
-    
+
     botSim.turn(turn); %Move Bot
     botSim.move(move); %Move Bot
     for ii =1:num
@@ -159,17 +158,17 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         particle_data(ii,1:2) = particles(ii).getBotPos();
         particle_data(ii,3) = mod(particles(ii).getBotAng(),2*pi);
     end
-    
-    
+
+
     %% Convergence
     %By using 'uniquetol' clusters of particles can be found by setting...
     %'tol' to an appropriate value to increase required accuracy before...
     %convergence.
     % 'DataScale' is required to scale the angle data to work with the
     % single tolerance level
-    
+
     [C,iA] = uniquetol(particle_data(:,1:3),tol,'ByRows',true,'OutputAllIndices',true,'DataScale',[1,1,(180/pi)]);
-    
+
     if size(C) <= unique_clusters %if the number of clusters is below a certain value = converged
         [~,weight_max_ind] = max(cellfun('size', iA, 1)); %find the max cell size
         botEst(1:3) = C(weight_max_ind,:); %retrieve estimate for bot position
@@ -179,7 +178,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
     else
         botEst = NaN; %if not converged
     end
-    
+
     %% Drawing
     if drawing == 1
         hold off; %the drawMap() function will clear the drawing when hold is off
@@ -187,16 +186,16 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         botSim.drawMap(); %drawMap() turns hold back on again, so you can draw the bots
         axis manual
         botSim.drawScanConfig();
-        
+
         plot(target(1),target(2),'*b', 'MarkerSize', 5);
-        
+
         if debug == 1 % Plotting all particles is slow, only plots if debug is on
             %for ii =1:num
             plot(particle_data(:,1), particle_data(:,2), '.k', 'MarkerSize', 7);
             %particles(ii).drawBot(weights(ii)*1000);
             %end
         end
-        
+
         if isnan(botEst(1))
         else
             if botEst(3) <= pi

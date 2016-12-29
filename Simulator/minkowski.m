@@ -9,7 +9,6 @@ function [ newMap ] = minkowski( radius, map, drawing )
 %	===== Outputs ====
 %	newMap - List of vertices of new offset map
 %
-% 	by David Mathias
 
 % intialising variables
 numVert = size(map,1);
@@ -44,10 +43,10 @@ for ii = 1:numVert
     else
         next = map(ii+1, :);
     end
-    
+
     vec1(ii,:) = next - current;
     vec2(ii,:) = prev - current;
-    
+
     unitVec(ii,:) = vec1(ii,:)/norm(vec1(ii,:));
     x1 = vec1(ii,1);
     y1 = vec1(ii,2);
@@ -99,4 +98,3 @@ if drawing == true
 end
 
 end
-

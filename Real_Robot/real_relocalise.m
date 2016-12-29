@@ -116,14 +116,13 @@ index = randi([1, num-1]);  %random number for initial starting point on wheel
 beta = 0;
 max_weight = max(weights);
 for ii = 1 : num
-    beta = beta + rand(1)*2*max_weight; %aidan input description here!
-    while beta > weights(index) %aidan input description here!
-        beta = beta - weights(index); %aidan input description here!
-        index = rem((index+1),num)+1; %aidan input description here!
-        weights(ii) = weights(index);%aidan input description here!
-        particle_to_copy = index; %aidan input description here!
-        particles(ii).setBotPos(particles(particle_to_copy).getBotPos()); %aidan input description here!
-        particles(ii).setBotAng(particles(particle_to_copy).getBotAng());%aidan input description here!
+    beta = beta + rand(1)*2*max_weight; %Add a random number between 0 and max twice the max weight
+    while beta > weights(index) %Only resample certain particles
+        beta = beta - weights(index); %Calculate the remainder of index/num
+        index = rem((index+1),num)+1;
+        weights(ii) = weights(index);%Update weights
+        particles(ii).setBotPos(particles(index).getBotPos()); %Update particle position
+        particles(ii).setBotAng(particles(index).getBotAng()); %Update particle angle
     end
 end
 
@@ -148,15 +147,15 @@ if drawing == 1
     hold off; %the drawMap() function will clear the drawing when hold is off
     botSim.drawMap(); %drawMap() turns hold back on again, so you can draw the bots
 
-    
+
     plot(target(1),target(2),'*b', 'MarkerSize', 5);
-    
+
     if debug == 1
         for ii =1:num
             particles(ii).drawBot(weights(ii)*1000);
         end
     end
-    
+
     if isnan(botEst(1))
     else
         if botEst(3) <= pi

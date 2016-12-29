@@ -53,17 +53,17 @@ maxNumOfIterations = 10;
 n = 0;
 converged =0; %The filter has not converged yet
 while(converged == 0 && n < maxNumOfIterations) %particle filter loop
-    
+
     n = n+1;
-    
+
     %% Update and Score Particles
     % Perform real scan
     % remove values outside of 0 and 120 (max possible distance in map)
     % remove the value 83 - bizzare reoccurance
     % replace invalid values with average of adjacent values
-    
+
     [botScan, ~] = ultraScanNew(scan,40,numberScans);
-    
+
     for ii = 1 : size(botScan)
         if botScan(ii) < 0 || botScan(ii) > 120
             try %for all values except 1st or last
@@ -78,9 +78,9 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
             end
         end
     end
-    
+
     %disp(botScan) %display real scan
-    
+
     for ii = 1 : num
         [particle_scan, crossing_points] = particles(ii).ultraScan; %particle scan
         %          [SD_scan] = particle_scan_noise(particles(ii),particle_scan,crossing_points,numberScans);
@@ -96,12 +96,12 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         weights(ii) = 1/min_d; %use min ED of selected orientation to obtain weightings
         particles(ii).turn(turn); %Move particles to correct orientation
     end
-    
-    
+
+
     weights = weights/sum(weights); %normalize
-    
+
     %% Resampling - Resampling Wheel
-    
+
     %Initialize variables
     index = randi([1, num-1]);  %random number for initial starting point on wheel
     beta = 0;
@@ -109,7 +109,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
     for ii = 1 : num
         beta = beta + rand(1)*2*max_weight; %Add random amount to beta
         while beta > weights(index) %Resample for selected particles
-            beta = beta - weights(index); %aidan input description here!
+            beta = beta - weights(index);
             index = rem((index+1),num)+1; %Find remainder of index over number of particles
             weights(ii) = weights(index); %Set weights
             particles(ii).setBotPos(particles(index).getBotPos()); %Set Bot Position
@@ -122,7 +122,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
     for ii =1:num
         particles(ii).drawBot(weights(ii)*1000);
     end
-    
+
 
     %% Movement
     % Move to the furthest wall in steps of constant length
@@ -154,7 +154,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         end
     end
     move_it = move_it + 1;
-    
+
     if min(botScan) <= wallClearance && move_it ~= 2 % If within wall clearance begin evasive action
         disp('CLOSE TO WALL!!')
         move_it = 1;
@@ -162,7 +162,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         [move, turn] = avasive_action(scan_min_ind,full_dis,full_rot,left,right);
         reverse_flag = 1;
     end
-    
+
     % NXT send movement
     if round(turn) ~=0 && ~reverse_flag%if statement to remove exception
         if turn >= 0 %Set motor powers for rotation
@@ -194,7 +194,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         right.Stop('off');
     end
     reverse_flag = 0;
-    
+
     [~, SD_move_forward, SD_rotation ] = noise_generator(move,turn,0);
     for ii =1:num
         particles(ii).turn(turn + turn*SD_rotation*randn(1)); %move particles
@@ -212,16 +212,16 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         particle_data(ii,1:2) = particles(ii).getBotPos();
         particle_data(ii,3) = mod(particles(ii).getBotAng(),2*pi);
     end
-    
+
         %% Convergence
     %By using 'uniquetol' clusters of particles can be found by setting...
     %'tol' to an appropriate value to increase required accuracy before...
     %convergence.
     % 'DataScale' is required to scale the angle data to work with the
     % single tolerance level
-    
+
     [C,iA] = uniquetol(particle_data(:,1:3),tol,'ByRows',true,'OutputAllIndices',true,'DataScale',[1,1,(180/pi)]);
-     
+
     if size(C) <= unique_clusters %if the number of clusters is below a certain value = converged
         [~,weight_max_ind] = max(cellfun('size', iA, 1)); %find the max cell size
         % %                 botEst(1) = mean(particle_data(cell2mat(iA(weight_max_ind)),1));
@@ -241,15 +241,15 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
         botEst(3) = mod(botEst(3), 2*pi);
         size(iA,1);
     end
-    
-    
-    
+
+
+
     %% Drawing
     if drawing == 1
         hold off; %the drawMap() function will clear the drawing when hold is off
         botSim.drawMap(); %drawMap() turns hold back on again, so you can draw the bots
-        
-        
+
+
         plot(target(1),target(2),'*b', 'MarkerSize', 5);
         plot(C(:,1),C(:,2),'.b','MarkerSize', 10)
         if debug == 1 % Plotting all particles is slow, only plots if debug is on
@@ -257,7 +257,7 @@ while(converged == 0 && n < maxNumOfIterations) %particle filter loop
                 particles(ii).drawBot(weights(ii)*1000);
             end
         end
-        
+
         if isnan(botEst(1))
         else
             if botEst(3) <= pi
